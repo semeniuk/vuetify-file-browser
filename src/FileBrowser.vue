@@ -5,7 +5,7 @@
             :storages="storagesArray"
             :storage="activeStorage"
             :endpoints="endpoints"
-            :axios="axios"
+            :axios="axiosInstance"
             v-on:storage-changed="storageChanged"
             v-on:path-changed="pathChanged"
             v-on:add-files="addUploadingFiles"
@@ -17,7 +17,7 @@
                     :storage="activeStorage"
                     :icons="icons"
                     :endpoints="endpoints"
-                    :axios="axios"
+                    :axios="axiosInstance"
                     :refreshPending="refreshPending"
                     v-on:path-changed="pathChanged"
                     v-on:loading="loadingChanged"
@@ -31,7 +31,7 @@
                     :storage="activeStorage"
                     :icons="icons"
                     :endpoints="endpoints"
-                    :axios="axios"
+                    :axios="axiosInstance"
                     :refreshPending="refreshPending"
                     v-on:path-changed="pathChanged"
                     v-on:loading="loadingChanged"
@@ -46,7 +46,7 @@
             :storage="activeStorage"
             :files="uploadingFiles"
             :icons="icons"
-            :axios="axios"
+            :axios="axiosInstance"
             :endpoint="endpoints.upload"
             v-on:add-files="addUploadingFiles"
             v-on:remove-file="removeUploadingFile"
@@ -142,7 +142,8 @@ export default {
             path: "",
             activeStorage: null,
             uploadingFiles: false, // or an Array of files
-            refreshPending: false
+            refreshPending: false,
+            axiosInstance: null
         };
     },
     computed: {
@@ -189,7 +190,7 @@ export default {
     },
     created() {
         this.activeStorage = this.storage;
-        this.axios = this.axios || axios.create(this.axiosConfig);
+        this.axiosInstance = this.axios || axios.create(this.axiosConfig);
     },
     mounted() {
         if (!this.path && !(this.tree && this.$vuetify.breakpoint.smAndUp)) {

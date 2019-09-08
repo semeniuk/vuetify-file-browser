@@ -1,0 +1,25 @@
+{
+  "name": "vuetify-file-browser",
+  "version": "1.0.0",
+  "description": "Open source file manager component for web (Vue.js, Vuetify, Node.js)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/semeniuk/vuetify-file-browser.git"
+  },
+  "keywords": [
+    "File",
+    "Browser",
+    "Vuetify",
+    "Vue"
+  ],
+  "author": "Yurii Semeniuk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/semeniuk/vuetify-file-browser/issues"
+  },
+  "homepage": "https://github.com/semeniuk/vuetify-file-browser#readme"
+}

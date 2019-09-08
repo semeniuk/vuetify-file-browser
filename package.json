@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/semeniuk/vuetify-file-browser/issues"
   },
-  "homepage": "https://github.com/semeniuk/vuetify-file-browser#readme"
+  "homepage": "https://github.com/semeniuk/vuetify-file-browser#readme",
+  "dependencies": {
+    "axios": "^0.19.0"
+  }
 }

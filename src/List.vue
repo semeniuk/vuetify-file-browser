@@ -24,8 +24,11 @@
                     <v-list-item-content class="py-2">
                         <v-list-item-title v-text="item.basename"></v-list-item-title>
                     </v-list-item-content>
-                    <v-list-item-action v-if="false">
-                        <v-btn icon>
+                    <v-list-item-action>
+                        <v-btn icon @click.stop="deleteItem(item)">
+                            <v-icon color="grey lighten-1">mdi-delete-outline</v-icon>
+                        </v-btn>
+                        <v-btn icon v-if="false">
                             <v-icon color="grey lighten-1">mdi-information</v-icon>
                         </v-btn>
                     </v-list-item-action>
@@ -50,7 +53,7 @@
                     </v-list-item-content>
 
                     <v-list-item-action>
-                        <v-btn icon @click.stop="deleteFile(item)">
+                        <v-btn icon @click.stop="deleteItem(item)">
                             <v-icon color="grey lighten-1">mdi-delete-outline</v-icon>
                         </v-btn>
                         <v-btn icon v-if="false">
@@ -158,10 +161,13 @@ export default {
             }
             this.$emit("loading", false);
         },
-        async deleteFile(item) {
+        async deleteItem(item) {
+            console.log(item);
             let confirmed = await this.$refs.confirm.open(
                 "Delete",
-                `Are you sure you want to delete this file?<br><em>${item.basename}</em>`
+                `Are you sure you want to<br>delete this ${
+                    item.type === "dir" ? "folder" : "file"
+                }?<br><em>${item.basename}</em>`
             );
 
             if (confirmed) {

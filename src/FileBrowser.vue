@@ -9,6 +9,7 @@
             v-on:storage-changed="storageChanged"
             v-on:path-changed="pathChanged"
             v-on:add-files="addUploadingFiles"
+            v-on:folder-created="refreshPending = true"
         ></toolbar>
         <v-row no-gutters>
             <v-col v-if="tree && $vuetify.breakpoint.smAndUp" sm="auto">
@@ -86,6 +87,7 @@ const availableStorages = [
 const endpoints = {
     list: { url: "/storage/{storage}/list?path={path}", method: "get" },
     upload: { url: "/storage/{storage}/upload?path={path}", method: "post" },
+    mkdir: { url: "/storage/{storage}/mkdir?path={path}", method: "post" },
     delete: { url: "/storage/{storage}/delete?path={path}", method: "post" }
 };
 
@@ -130,10 +132,15 @@ export default {
         },
         // code of default storage
         storage: { type: String, default: "local" },
+        // show tree view
         tree: { type: Boolean, default: true },
+        // file icons set
         icons: { type: Object, default: () => fileIcons },
+        // custom backend endpoints
         endpoints: { type: Object, default: () => endpoints },
+        // custom axios instance
         axios: { type: Function },
+        // custom configuration for internal axios instance
         axiosConfig: { type: Object, default: () => {} }
     },
     data() {
@@ -168,12 +175,10 @@ export default {
             this.activeStorage = storage;
         },
         addUploadingFiles(files) {
-            console.log(files);
             if (this.uploadingFiles === false) {
                 this.uploadingFiles = [];
             }
             this.uploadingFiles.push(...files);
-            console.log(this.uploadingFiles);
         },
         removeUploadingFile(index) {
             this.uploadingFiles.splice(index, 1);
@@ -183,7 +188,6 @@ export default {
             this.refreshPending = true;
         },
         pathChanged(path) {
-            console.log("FileBrowser.pathChanged: " + path);
             this.path = path;
             this.$emit("change", path);
         }

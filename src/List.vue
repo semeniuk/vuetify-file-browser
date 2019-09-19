@@ -162,10 +162,9 @@ export default {
             this.$emit("loading", false);
         },
         async deleteItem(item) {
-            console.log(item);
             let confirmed = await this.$refs.confirm.open(
                 "Delete",
-                `Are you sure you want to<br>delete this ${
+                `Are you sure<br>you want to delete this ${
                     item.type === "dir" ? "folder" : "file"
                 }?<br><em>${item.basename}</em>`
             );

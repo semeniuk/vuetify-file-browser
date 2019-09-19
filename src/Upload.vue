@@ -152,7 +152,6 @@ export default {
                 method: this.endpoint.method || "post",
                 data: formData,
                 onUploadProgress: progressEvent => {
-                    console.log(progressEvent.loaded / progressEvent.total);
                     this.progress =
                         (progressEvent.loaded / progressEvent.total) * 100;
                 }
@@ -162,7 +161,6 @@ export default {
             let response = await this.axios.request(config);
             this.uploading = false;
             this.$emit("uploaded");
-            console.log(response);
         }
     },
     async created() {

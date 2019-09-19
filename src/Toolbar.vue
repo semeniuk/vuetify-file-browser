@@ -47,8 +47,34 @@
                 <span v-if="pathSegments.length === 1">Up to "root"</span>
                 <span v-else>Up to "{{pathSegments[pathSegments.length - 2].name}}"</span>
             </v-tooltip>
-
-            <v-btn v-if="path" icon @click="$refs.inputUpload.click()">
+            <v-menu
+                v-model="newFolderPopper"
+                :close-on-content-click="false"
+                :nudge-width="200"
+                offset-y
+            >
+                <template v-slot:activator="{ on }">
+                    <v-btn v-if="path" icon v-on="on" title="Create Folder">
+                        <v-icon>mdi-folder-plus-outline</v-icon>
+                    </v-btn>
+                </template>
+                <v-card>
+                    <v-card-text>
+                        <v-text-field label="Name" v-model="newFolderName" hide-details></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <div class="flex-grow-1"></div>
+                        <v-btn @click="newFolderPopper = false" depressed>Cancel</v-btn>
+                        <v-btn
+                            color="success"
+                            :disabled="!newFolderName"
+                            depressed
+                            @click="mkdir"
+                        >Create Folder</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-menu>
+            <v-btn v-if="path" icon @click="$refs.inputUpload.click()" title="Upload Files">
                 <v-icon>mdi-plus-circle</v-icon>
                 <input v-show="false" ref="inputUpload" type="file" multiple @change="addFiles" />
             </v-btn>
@@ -64,6 +90,12 @@ export default {
         path: String,
         endpoints: Object,
         axios: Function
+    },
+    data() {
+        return {
+            newFolderPopper: false,
+            newFolderName: ""
+        };
     },
     computed: {
         pathSegments() {
@@ -107,6 +139,23 @@ export default {
         async addFiles(event) {
             this.$emit("add-files", event.target.files);
             this.$refs.inputUpload.value = "";
+        },
+        async mkdir() {
+            this.$emit("loading", true);
+            let url = this.endpoints.mkdir.url
+                .replace(new RegExp("{storage}", "g"), this.storage)
+                .replace(new RegExp("{path}", "g"), this.path + this.newFolderName);
+
+            let config = {
+                url,
+                method: this.endpoints.mkdir.method || "post"
+            };
+
+            await this.axios.request(config);
+            this.$emit("folder-created", this.newFolderName);
+            this.newFolderPopper = false;
+            this.newFolderName = "";
+            this.$emit("loading", false);
         }
     }
 };

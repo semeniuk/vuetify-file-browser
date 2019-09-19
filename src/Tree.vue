@@ -131,13 +131,11 @@ export default {
             }
         },
         findItem(path) {
-            console.log(path);
             let stack = [];
             stack.push(this.items[0]);
             while (stack.length > 0) {
                 let node = stack.pop();
                 if (node.path == path) {
-                    console.log(node);
                     return node;
                 } else if (node.children && node.children.length) {
                     for (let i = 0; i < node.children.length; i++) {

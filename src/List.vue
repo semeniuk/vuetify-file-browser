@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import Confirm from "./Confirm";
+import Confirm from "./Confirm.vue";
 
 export default {
     props: {

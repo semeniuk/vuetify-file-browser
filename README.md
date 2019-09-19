@@ -1,6 +1,6 @@
 # Vuetify File Browser
 
-Open source file manager component for web (Vue.js, Vuetify, Node.js).
+Open source file manager component for Vue.js. Requires Vuetify v2.0 or higher.
 
 [💣 Demo](https://vuetify-file-browser-demo.herokuapp.com/) 
 

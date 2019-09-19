@@ -61,10 +61,10 @@
 <script>
 import axios from "axios";
 
-import Toolbar from "./Toolbar";
-import Tree from "./Tree";
-import List from "./List";
-import Upload from "./Upload";
+import Toolbar from "./Toolbar.vue";
+import Tree from "./Tree.vue";
+import List from "./List.vue";
+import Upload from "./Upload.vue";
 
 const availableStorages = [
     {

@@ -1,11 +1,19 @@
 <template>
     <v-overlay :absolute="true">
         <v-card flat light class="mx-auto" :loading="loading">
-            <div class="py-3 text-center">
-                <span class="grey--text">Upload to:</span>
-                <v-chip color="info" class="ml-1">{{ storage }}</v-chip>
-                <v-chip>{{ path }}</v-chip>
-            </div>
+            <v-card-text class="py-3 text-center">
+                <div>
+                    <span class="grey--text">Upload to:</span>
+                    <v-chip color="info" class="mx-1">{{ storage }}</v-chip>
+                    <v-chip>{{ path }}</v-chip>
+                </div>
+                <div v-if="maxUploadFilesCount">
+                    <span class="grey--text">Max files count: {{ maxUploadFilesCount }}</span>
+                </div>
+                <div v-if="maxUploadFileSize">
+                    <span class="grey--text">Max file size: {{ formatBytes(maxUploadFileSize) }}</span>
+                </div>
+            </v-card-text>
             <v-divider></v-divider>
             <v-card-text v-if="listItems.length" class="pa-0 files-list-wrapper">
                 <v-list two-line v-if="listItems.length">
@@ -21,7 +29,7 @@
                         </v-list-item-avatar>
                         <v-list-item-content>
                             <v-list-item-title v-text="file.name"></v-list-item-title>
-                            <v-list-item-subtitle>{{ file.size }} - {{ file.type }}</v-list-item-subtitle>
+                            <v-list-item-subtitle>{{ formatBytes(file.size) }} - {{ file.type }}</v-list-item-subtitle>
                         </v-list-item-content>
                         <v-list-item-action>
                             <v-btn icon @click="remove(index)">
@@ -43,7 +51,13 @@
                 <v-btn depressed color="warning" @click="clear" class="mx-1" :disabled="!files">
                     <v-icon>mdi-close</v-icon>Clear
                 </v-btn>
-                <v-btn depressed color="info" @click="$refs.inputUpload.click()" class="mx-1">
+                <v-btn
+                    :disabled="listItems.length >= maxUploadFilesCount"
+                    depressed
+                    color="info"
+                    @click="$refs.inputUpload.click()"
+                    class="mx-1"
+                >
                     <v-icon left>mdi-plus-circle</v-icon>Add Files
                     <input
                         v-show="false"
@@ -68,6 +82,8 @@
 </template>
 
 <script>
+import { formatBytes } from "./util";
+
 const imageMimeTypes = ["image/png", "image/jpeg"];
 
 export default {
@@ -77,17 +93,21 @@ export default {
         endpoint: Object,
         files: { type: Array, default: () => [] },
         icons: Object,
-        axios: Function
+        axios: Function,
+        maxUploadFilesCount: { type: Number, default: 0 },
+        maxUploadFileSize: { type: Number, default: 0 }
     },
     data() {
         return {
-            loading: true,
+            loading: false,
             uploading: false,
             progress: 0,
             listItems: []
         };
     },
     methods: {
+        formatBytes,
+
         async filesMap(files) {
             let promises = Array.from(files).map(file => {
                 let result = {
@@ -114,9 +134,6 @@ export default {
 
         async add(event) {
             let files = Array.from(event.target.files);
-            this.loading = true;
-            this.listItems = this.listItems.concat(await this.filesMap(files));
-            this.loading = false;
             this.$emit("add-files", files);
             this.$refs.inputUpload.value = "";
         },
@@ -163,9 +180,16 @@ export default {
             this.$emit("uploaded");
         }
     },
-    async created() {
-        this.listItems = await this.filesMap(this.files);
-        this.loading = false;
+    watch: {
+        files: {
+            deep: true,
+            immediate: true,
+            async handler() {
+                this.loading = true;
+                this.listItems = await this.filesMap(this.files);
+                this.loading = false;
+            }
+        }
     }
 };
 </script>

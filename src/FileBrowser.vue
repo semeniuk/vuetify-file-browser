@@ -49,6 +49,8 @@
             :icons="icons"
             :axios="axiosInstance"
             :endpoint="endpoints.upload"
+            :maxUploadFilesCount="maxUploadFilesCount"
+            :maxUploadFileSize="maxUploadFileSize"
             v-on:add-files="addUploadingFiles"
             v-on:remove-file="removeUploadingFile"
             v-on:clear-files="uploadingFiles = []"
@@ -141,7 +143,11 @@ export default {
         // custom axios instance
         axios: { type: Function },
         // custom configuration for internal axios instance
-        axiosConfig: { type: Object, default: () => {} }
+        axiosConfig: { type: Object, default: () => {} },
+        // max files count to upload at once. Unlimited by default
+        maxUploadFilesCount: { type: Number, default: 0 },
+        // max file size to upload. Unlimited by default
+        maxUploadFileSize: { type: Number, default: 0 }
     },
     data() {
         return {
@@ -175,9 +181,22 @@ export default {
             this.activeStorage = storage;
         },
         addUploadingFiles(files) {
+            files = Array.from(files);
+
+            if (this.maxUploadFileSize) {
+                files = files.filter(
+                    file => file.size <= this.maxUploadFileSize
+                );
+            }
+
             if (this.uploadingFiles === false) {
                 this.uploadingFiles = [];
             }
+            
+            if (this.uploadingFiles.length + files.length > this.maxUploadFilesCount) {
+                files = files.slice(0, this.maxUploadFilesCount - this.uploadingFiles.length);
+            }
+
             this.uploadingFiles.push(...files);
         },
         removeUploadingFile(index) {

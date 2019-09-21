@@ -1,5 +1,5 @@
 <template>
-    <v-card flat tile width="250" min-height="350" class="d-flex flex-column folders-tree-card">
+    <v-card flat tile width="250" min-height="380" class="d-flex flex-column folders-tree-card">
         <div class="grow scroll-x">
             <v-treeview
                 :open="open"

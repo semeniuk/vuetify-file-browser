@@ -63,5 +63,9 @@ endpoints: { type: Object, default: () => endpoints },
 // custom axios instance
 axios: { type: Function },
 // custom configuration for internal axios instance
-axiosConfig: { type: Object, default: () => {} }
+axiosConfig: { type: Object, default: () => {} },
+// max files count to upload at once. Unlimited by default
+maxUploadFilesCount: { type: Number, default: 0 },
+// max file size to upload. Unlimited by default
+maxUploadFileSize: { type: Number, default: 0 }
 ```

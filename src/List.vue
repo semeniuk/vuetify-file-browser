@@ -1,5 +1,5 @@
 <template>
-    <v-card flat tile min-height="350" class="d-flex flex-column">
+    <v-card flat tile min-height="380" class="d-flex flex-column">
         <confirm ref="confirm"></confirm>
         <v-card-text
             v-if="!path"
@@ -49,7 +49,7 @@
 
                     <v-list-item-content class="py-2">
                         <v-list-item-title v-text="item.basename"></v-list-item-title>
-                        <v-list-item-subtitle>{{ item.size }} bytes</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ formatBytes(item.size) }}</v-list-item-subtitle>
                     </v-list-item-content>
 
                     <v-list-item-action>
@@ -98,6 +98,7 @@
 </template>
 
 <script>
+import { formatBytes } from "./util";
 import Confirm from "./Confirm.vue";
 
 export default {
@@ -139,6 +140,7 @@ export default {
         }
     },
     methods: {
+        formatBytes,
         changePath(path) {
             this.$emit("path-changed", path);
         },

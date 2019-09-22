@@ -1,6 +1,6 @@
 {
   "name": "vuetify-file-browser",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Open source file manager component for Vue.js. Requires Vuetify v2.0 or higher",
   "main": "src/index.js",
   "scripts": {

@@ -193,7 +193,7 @@ export default {
                 this.uploadingFiles = [];
             }
             
-            if (this.uploadingFiles.length + files.length > this.maxUploadFilesCount) {
+            if (this.maxUploadFilesCount && this.uploadingFiles.length + files.length > this.maxUploadFilesCount) {
                 files = files.slice(0, this.maxUploadFilesCount - this.uploadingFiles.length);
             }
 

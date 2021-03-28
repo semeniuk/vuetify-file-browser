@@ -15,7 +15,7 @@
                 <v-list-item
                     v-for="item in dirs"
                     :key="item.basename"
-                    @click="changePath(item.path)"
+                    @click.once="changePath(item.path)"
                     class="pl-0"
                 >
                     <v-list-item-avatar class="ma-0">
@@ -40,7 +40,8 @@
                 <v-list-item
                     v-for="item in files"
                     :key="item.basename"
-                    @click="changePath(item.path)"
+                    @click="itemClicked(item)"
+                    v-selected="fileSelected(item)"
                     class="pl-0"
                 >
                     <v-list-item-avatar class="ma-0">
@@ -105,10 +106,11 @@ export default {
     props: {
         icons: Object,
         storage: String,
+        root: Object,
         path: String,
         endpoints: Object,
         axios: Function,
-        refreshPending: Boolean
+        refreshPending: Boolean,
     },
     components: {
         Confirm
@@ -139,8 +141,76 @@ export default {
             return !this.isDir;
         }
     },
+    directives: {
+        selected: {
+            bind: function (el, binding, vNode) {
+                // Make sure expression provided is a function
+                if (typeof binding.value !== 'function') {
+                    // Fetch name of component
+                    const compName = vNode.context.name
+                    // pass warning to console
+                    let warn = `[selected:] provided expression '${binding.expression}' is not a function, but has to be`
+                    if (compName) { warn += `Found in component '${compName}' ` }
+
+                    console.warn(warn)
+                }
+
+                // Define variable
+                let pressTimer = null
+
+                // Define funtion handlers
+                // Create timeout ( run function after 1s )
+                let start = (e) => {
+
+                    if (e.type === 'click' && e.button !== 0) {
+                        return;
+                    }
+
+                    if (pressTimer === null) {
+                        pressTimer = setTimeout(() => {
+                            // Run function
+                            handler()
+                        }, 1000)
+                    }
+                }
+
+                // Cancel Timeout
+                let cancel = (e) => {
+                    // Check if timer has a value or not
+                    if (pressTimer !== null) {
+                        clearTimeout(pressTimer)
+                        pressTimer = null
+                    }
+                }
+                // Run Function
+                const handler = (e) => {
+                    binding.value(e)
+                }
+
+                // Add Event listeners
+                // Double-click triggers the handler immediately
+                el.addEventListener("dblclick", handler);
+                // Only monitor beginning of touch event for now
+                //el.addEventListener("mousedown", start);
+                el.addEventListener("touchstart", start);
+                // Cancel timeouts if these events happen
+                el.addEventListener("click", cancel);
+                el.addEventListener("mouseout", cancel);
+                el.addEventListener("touchend", cancel);
+                el.addEventListener("touchcancel", cancel);
+            }
+        }
+    },
     methods: {
         formatBytes,
+        itemClicked(item) {
+            if (item.type === "dir") {
+                this.changePath(item.path);
+            }
+        },
+        fileSelected(item) {
+            return () => this.$emit("file-selected", item);
+        },
         changePath(path) {
             this.$emit("path-changed", path);
         },
@@ -164,11 +234,13 @@ export default {
             this.$emit("loading", false);
         },
         async deleteItem(item) {
+            let message = `Are you sure<br>you want to delete this ${
+                    item.type === "dir" ? "folder" : "file"
+                }?<br><em>${item.basename}</em>`;
+            this.$emit('item-deleting', item, (customMessage) => message = customMessage);
             let confirmed = await this.$refs.confirm.open(
                 "Delete",
-                `Are you sure<br>you want to delete this ${
-                    item.type === "dir" ? "folder" : "file"
-                }?<br><em>${item.basename}</em>`
+                message
             );
 
             if (confirmed) {

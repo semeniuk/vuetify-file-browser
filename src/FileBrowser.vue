@@ -1,6 +1,7 @@
 <template>
     <v-card class="mx-auto" :loading="loading > 0">
         <toolbar
+            :root="root"
             :path="path"
             :storages="storagesArray"
             :storage="activeStorage"
@@ -14,12 +15,14 @@
         <v-row no-gutters>
             <v-col v-if="tree && $vuetify.breakpoint.smAndUp" sm="auto">
                 <tree
+                    :root="root"
                     :path="path"
                     :storage="activeStorage"
                     :icons="icons"
                     :endpoints="endpoints"
                     :axios="axiosInstance"
                     :refreshPending="refreshPending"
+                    :showFiles="showFilesInTree"
                     v-on:path-changed="pathChanged"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
@@ -28,6 +31,7 @@
             <v-divider v-if="tree" vertical></v-divider>
             <v-col>
                 <list
+                    :root="root"
                     :path="path"
                     :storage="activeStorage"
                     :icons="icons"
@@ -38,12 +42,16 @@
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
                     v-on:file-deleted="refreshPending = true"
+                    v-on:file-selected="(item) => $emit('file-selected', item)"
+                    v-on:item-deleting="(item, setMessage) => $emit('item-deleting', item, setMessage)"
                 ></list>
             </v-col>
         </v-row>
         <upload
             v-if="uploadingFiles !== false"
+            :root="root"
             :path="path"
+            :storages="storagesArray"
             :storage="activeStorage"
             :files="uploadingFiles"
             :icons="icons"
@@ -115,6 +123,11 @@ const fileIcons = {
     other: "mdi-file-outline"
 };
 
+const root = { 
+    path: "", 
+    name: null 
+};
+
 export default {
     components: {
         Toolbar,
@@ -147,7 +160,11 @@ export default {
         // max files count to upload at once. Unlimited by default
         maxUploadFilesCount: { type: Number, default: 0 },
         // max file size to upload. Unlimited by default
-        maxUploadFileSize: { type: Number, default: 0 }
+        maxUploadFileSize: { type: Number, default: 0 },
+        // root node
+        root: { type: Object, default: () => root },
+        // indicate whether files should be displayed in the tree
+        showFilesInTree: {type: Boolean, default: false }
     },
     data() {
         return {
@@ -217,7 +234,7 @@ export default {
     },
     mounted() {
         if (!this.path && !(this.tree && this.$vuetify.breakpoint.smAndUp)) {
-            this.pathChanged("/");
+            this.pathChanged(this.root.path || "/");
         }
     }
 };

@@ -23,7 +23,7 @@
             </v-menu>
             <v-btn text :input-value="path === '/'" @click="changePath('/')">
                 <v-icon class="mr-2">{{storageObject.icon}}</v-icon>
-                {{storageObject.name}}
+                {{root.name || storageObject.name}}
             </v-btn>
             <template v-for="(segment, index) in pathSegments">
                 <v-icon :key="index + '-icon'">mdi-chevron-right</v-icon>
@@ -44,7 +44,7 @@
                         <v-icon>mdi-arrow-up-bold-outline</v-icon>
                     </v-btn>
                 </template>
-                <span v-if="pathSegments.length === 1">Up to "root"</span>
+                <span v-if="pathSegments.length === 1">Up to "{{root.name}}"</span>
                 <span v-else>Up to "{{pathSegments[pathSegments.length - 2].name}}"</span>
             </v-tooltip>
             <v-menu
@@ -87,6 +87,7 @@ export default {
     props: {
         storages: Array,
         storage: String,
+        root: Object,
         path: String,
         endpoints: Object,
         axios: Function
@@ -99,11 +100,12 @@ export default {
     },
     computed: {
         pathSegments() {
-            let path = "/",
+            let path = this.root.path + "/",
                 isFolder = this.path[this.path.length - 1] === "/",
-                segments = this.path.split("/").filter(item => item);
+                pathToSegment = this.path.startsWith(this.root.path) ? this.path.slice(this.root.path.length) : this.path,
+                segments = pathToSegment.split("/").filter(item => item);
 
-            segments = segments.map((item, index) => {
+            segments = segments.splice(0, isFolder ? segments.length : segments.length - 1).map((item, index) => {
                 path +=
                     item + (index < segments.length - 1 || isFolder ? "/" : "");
                 return {
@@ -132,7 +134,7 @@ export default {
             let segments = this.pathSegments,
                 path =
                     segments.length === 1
-                        ? "/"
+                        ? this.root.path + "/"
                         : segments[segments.length - 2].path;
             this.changePath(path);
         },

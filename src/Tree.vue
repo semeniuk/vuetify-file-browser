@@ -62,10 +62,12 @@ export default {
     props: {
         icons: Object,
         storage: String,
+        root: Object,
         path: String,
         endpoints: Object,
         axios: Function,
-        refreshPending: Boolean
+        refreshPending: Boolean,
+        showFiles: Boolean
     },
     data() {
         return {
@@ -81,20 +83,30 @@ export default {
             this.items = [];
             // set default files tree items (root item) in nextTick.
             // Otherwise this.open isn't cleared properly (due to syncing perhaps)
-            setTimeout(() => {
-                this.items = [
-                    {
-                        type: "dir",
-                        path: "/",
-                        basename: "root",
-                        extension: "",
-                        name: "root",
-                        children: []
-                    }
-                ];
+            setTimeout(async () => {
+                if (this.root.path)
+                {
+                    let rootItem = { path: this.root.path, children: [] };
+                    await this.readFolder(rootItem);
+                    this.items = rootItem.children;
+                }
+                else
+                {
+                    this.items = [
+                        {
+                            type: "dir",
+                            path: this.root.path || "/",
+                            basename: this.root.name || "root",
+                            extension: "",
+                            name: this.root.name || "root",
+                            children: []
+                        }
+                    ];
+                }
             }, 0);
-            if (this.path !== "") {
-                this.$emit("path-changed", "");
+            let path = this.root.path ? this.root.path + "/" : "";
+            if (this.path !== path) {
+                this.$emit("path-changed", path);
             }
         },
         async readFolder(item) {
@@ -111,18 +123,20 @@ export default {
             let response = await this.axios.request(config);
 
             // eslint-disable-next-line require-atomic-updates
-            item.children = response.data.map(item => {
-                if (item.type === "dir") {
-                    item.children = [];
-                }
-                return item;
-            });
+            item.children = response.data
+                .filter(item => item.type === "dir" || this.showFiles)
+                .map(item => {
+                    if (item.type === "dir") {
+                        item.children = [];
+                    }
+                    return item;
+                });
 
             this.$emit("loading", false);
         },
         activeChanged(active) {
             this.active = active;
-            let path = "";
+            let path = this.root.path ? this.root.path + "/" : "";
             if (active.length) {
                 path = active[0];
             }

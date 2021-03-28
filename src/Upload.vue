@@ -2,7 +2,7 @@
     <v-overlay :absolute="true">
         <v-card flat light class="mx-auto" :loading="loading">
             <v-card-text class="py-3 text-center">
-                <div>
+                <div v-if="storages.length > 1">
                     <span class="grey--text">Upload to:</span>
                     <v-chip color="info" class="mx-1">{{ storage }}</v-chip>
                     <v-chip>{{ path }}</v-chip>
@@ -88,7 +88,9 @@ const imageMimeTypes = ["image/png", "image/jpeg"];
 
 export default {
     props: {
+        root: Object,
         path: String,
+        storages: Array,
         storage: String,
         endpoint: Object,
         files: { type: Array, default: () => [] },

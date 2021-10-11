@@ -52,7 +52,7 @@
                     <v-icon>mdi-close</v-icon>Clear
                 </v-btn>
                 <v-btn
-                    :disabled="listItems.length >= maxUploadFilesCount"
+                    :disabled="listItems.length >= maxUploadFilesCount && maxUploadFilesCount !== 0"
                     depressed
                     color="info"
                     @click="$refs.inputUpload.click()"
